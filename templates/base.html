@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}RuralCare AI{% endblock %}</title>
+
+    <!-- Shared fonts & icons used across all your pages -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- ═══════════════════════════════════════════
+         GOOGLE TRANSLATE — hidden widget (required)
+         This div must exist but stays invisible.
+         Google Translate reads it silently in the background.
+    ═══════════════════════════════════════════ -->
+    <div id="google_translate_element" style="display:none"></div>
+
+    <style>
+        /* ── Reset & base ───────────────────────────────── */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --primary-blue: #007bff;
+            --bg-color: #f8fafc;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --card-bg: #ffffff;
+            --nav-bg: #ffffff;
+            --nav-border: #edf2f7;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            min-height: 100vh;
+        }
+
+        /* ── Top Navbar ─────────────────────────────────── */
+        .navbar {
+            background: var(--nav-bg);
+            border-bottom: 1px solid var(--nav-border);
+            padding: 0 30px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 60px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+        }
+
+        .navbar-brand {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--primary-blue);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .navbar-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        /* ── Google Translate Dropdown ──────────────────── */
+        /*
+            This is a plain <select> styled to look native to your UI.
+            When the user picks a language, doGTranslate() fires —
+            it sets a cookie and reloads the page fully translated.
+            Google does the translation client-side; your HTML is untouched.
+        */
+        .lang-select {
+            padding: 6px 12px;
+            border-radius: 8px;
+            border: 1.5px solid #e0e0e0;
+            background: #fff;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-main);
+            cursor: pointer;
+            outline: none;
+            transition: border 0.2s;
+        }
+
+        .lang-select:hover, .lang-select:focus {
+            border-color: var(--primary-blue);
+        }
+
+        /* ── Nav links (shown when logged in) ───────────── */
+        .nav-link {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.875rem;
+            font-weight: 600;
+            transition: color 0.2s;
+        }
+
+        .nav-link:hover { color: var(--primary-blue); }
+
+        .nav-link.logout {
+            color: #ef4444;
+        }
+
+        /* ── Flash messages ─────────────────────────────── */
+        .flash-container {
+            max-width: 1100px;
+            margin: 16px auto 0;
+            padding: 0 20px;
+        }
+
+        .flash {
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .flash.success { background: #d4edda; color: #155724; }
+        .flash.error   { background: #f8d7da; color: #721c24; }
+        .flash.info    { background: #d1ecf1; color: #0c5460; }
+
+        /* ── Page content wrapper ───────────────────────── */
+        .page-content {
+            padding: 40px 20px;
+        }
+
+        /* ── Hide Google's own top banner bar ───────────── */
+        /*
+            Google Translate injects a bar at the top of the page.
+            These rules hide it so your UI stays clean.
+        */
+        .goog-te-banner-frame { display: none !important; }
+        body { top: 0 !important; }
+        .skiptranslate { display: none !important; }
+    </style>
+
+    <!-- Extra styles from child pages go here -->
+    {% block styles %}{% endblock %}
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════
+     NAVBAR — appears on every page
+═══════════════════════════════════════════════════ -->
+<nav class="navbar">
+
+    <!-- Brand / Logo -->
+    <a href="/" class="navbar-brand">
+        🏥 RuralCare AI
+    </a>
+
+    <div class="navbar-right">
+
+        <!-- ── GOOGLE TRANSLATE DROPDOWN ──────────────────
+             Value format: "source_lang|target_lang"
+             doGTranslate() reads the target (after |) and
+             sets the googtrans cookie, then reloads the page.
+        ─────────────────────────────────────────────── -->
+        <select class="lang-select" onchange="doGTranslate(this.value)" id="langDropdown">
+            <option value="">🌐 Language</option>
+            <option value="en|en">English</option>
+            <option value="en|ta">தமிழ் (Tamil)</option>
+            <option value="en|hi">हिन्दी (Hindi)</option>
+            <option value="en|te">తెలుగు (Telugu)</option>
+            <option value="en|kn">ಕನ್ನಡ (Kannada)</option>
+            <option value="en|ml">മലയാളം (Malayalam)</option>
+            <option value="en|fr">Français (French)</option>
+            <option value="en|ar">العربية (Arabic)</option>
+        </select>
+
+        
+    </div>
+</nav>
+
+<!-- ═══════════════════════════════════════════════════
+     FLASH MESSAGES — shown on every page automatically
+═══════════════════════════════════════════════════ -->
+{% with messages = get_flashed_messages() %}
+    {% if messages %}
+        <div class="flash-container">
+            {% for message in messages %}
+                <div class="flash success">{{ message }}</div>
+            {% endfor %}
+        </div>
+    {% endif %}
+{% endwith %}
+
+<!-- ═══════════════════════════════════════════════════
+     PAGE CONTENT — each child page fills this block
+═══════════════════════════════════════════════════ -->
+<div class="page-content">
+    {% block content %}{% endblock %}
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     GOOGLE TRANSLATE SCRIPTS — loaded once here,
+     works on every page that extends base.html
+═══════════════════════════════════════════════════ -->
+
+<!-- Step 1: This callback runs when Google's script loads.
+     It initialises the hidden widget on #google_translate_element.
+     autoDisplay:false stops it from showing its own UI. -->
+<script>
+    function googleTranslateElementInit() {
+        new google.translate.TranslateElement({
+            pageLanguage: 'en',
+            includedLanguages: 'en,ta,hi,te,kn,ml,fr,ar',
+            autoDisplay: false
+        }, 'google_translate_element');
+    }
+</script>
+
+<!-- Step 2: Load Google's translate engine. The ?cb= tells it
+     to call googleTranslateElementInit() once ready. -->
+<script src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+
+<!-- Step 3: Our custom switcher function.
+     When user picks a language from the dropdown:
+     1. Reads the target language code (e.g. "ta")
+     2. Sets the googtrans cookie that Google Translate reads
+     3. Reloads the page — Google translates everything client-side
+     4. On reload, highlight the active language in the dropdown -->
+<script>
+    function doGTranslate(langPair) {
+        if (!langPair || langPair === '') return;
+
+        var targetLang = langPair.split('|')[1];
+
+        // Set translation cookie (path=/ means it works on all pages)
+        document.cookie = 'googtrans=/en/' + targetLang + '; path=/';
+        document.cookie = 'googtrans=/en/' + targetLang + '; path=/; domain=' + location.hostname;
+
+        location.reload();
+    }
+
+    // On page load — read the cookie and pre-select the active language
+    // so the dropdown always shows the current language
+    (function highlightActiveLang() {
+        var match = document.cookie.match(/googtrans=\/en\/([a-z]+)/);
+        if (match) {
+            var lang = match[1];
+            var dropdown = document.getElementById('langDropdown');
+            for (var i = 0; i < dropdown.options.length; i++) {
+                if (dropdown.options[i].value === 'en|' + lang) {
+                    dropdown.selectedIndex = i;
+                    break;
+                }
+            }
+        }
+    })();
+</script>
+
+<!-- Extra scripts from child pages go here -->
+{% block scripts %}{% endblock %}
+
+</body>
+</html>

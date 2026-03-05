@@ -1,0 +1,441 @@
+{% extends "base.html" %}
+
+{% block title %}RuralCare AI | Add Prescription{% endblock %}
+
+{% block styles %}
+<style>
+    /* I kept all your original CSS exactly as it was */
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+    
+    .container-fluid {
+        background: #f5f7fa;
+        min-height: 100vh;
+        padding: 20px;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    
+    .prescription-wrapper {
+        max-width: 900px;
+        margin: 0 auto;
+    }
+    
+    .header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 30px;
+        border-radius: 10px;
+        margin-bottom: 30px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+    
+    .header h1 {
+        font-size: 28px;
+        margin-bottom: 10px;
+    }
+    
+    .patient-info {
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    }
+    
+    .patient-info h3 {
+        color: #333;
+        margin-bottom: 15px;
+    }
+    
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 15px;
+    }
+    
+    .info-item {
+        display: flex;
+        align-items: center;
+        font-size: 14px;
+    }
+    
+    .info-item strong {
+        color: #555;
+        min-width: 120px;
+    }
+    
+    .info-item span {
+        color: #333;
+    }
+    
+    .form-section {
+        background: white;
+        padding: 30px;
+        border-radius: 10px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    }
+    
+    .form-section h3 {
+        color: #333;
+        margin-bottom: 20px;
+        padding-bottom: 10px;
+        border-bottom: 2px solid #667eea;
+    }
+    
+    .form-group {
+        margin-bottom: 20px;
+    }
+    
+    .form-group label {
+        display: block;
+        color: #555;
+        margin-bottom: 8px;
+        font-size: 14px;
+        font-weight: 600;
+    }
+    
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+        width: 100%;
+        padding: 12px;
+        border: 2px solid #e0e0e0;
+        border-radius: 8px;
+        font-size: 14px;
+        font-family: inherit;
+        transition: border 0.3s;
+    }
+    
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+        outline: none;
+        border-color: #667eea;
+    }
+    
+    .form-group textarea {
+        resize: vertical;
+        min-height: 80px;
+    }
+    
+    .medication-item,
+    .exercise-item {
+        background: #f8f9fa;
+        padding: 20px;
+        border-radius: 8px;
+        margin-bottom: 15px;
+        border-left: 3px solid #667eea;
+    }
+    
+    .item-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+    }
+    
+    .item-header h4 {
+        color: #333;
+        font-size: 16px;
+    }
+    
+    .remove-btn {
+        background: #e74c3c;
+        color: white;
+        border: none;
+        padding: 6px 12px;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 13px;
+    }
+    
+    .form-row {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 15px;
+        margin-bottom: 15px;
+    }
+    
+    .add-more-btn {
+        background: #27ae60;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-top: 10px;
+    }
+    
+    .add-more-btn:hover {
+        background: #229954;
+    }
+    
+    .actions {
+        display: flex;
+        gap: 15px;
+        margin-top: 30px;
+    }
+    
+    .btn {
+        flex: 1;
+        padding: 14px;
+        border: none;
+        border-radius: 8px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: transform 0.2s;
+        text-align: center;
+        text-decoration: none;
+    }
+    
+    .btn:hover {
+        transform: translateY(-2px);
+    }
+    
+    .btn-primary {
+        background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
+        color: white;
+    }
+    
+    .btn-secondary {
+        background: #e0e0e0;
+        color: #333;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="prescription-wrapper">
+        <div class="header">
+            <h1>📋 Create Prescription</h1>
+            <p>Add medications, exercises, and health instructions for your patient</p>
+        </div>
+        
+        <div class="patient-info">
+            <h3>Patient Information</h3>
+            <div class="info-grid">
+                <div class="info-item">
+                    <strong>Name:</strong>
+                    <span>{{ user.name }}</span>
+                </div>
+                <div class="info-item">
+                    <strong>Age:</strong>
+                    <span>{{ user.age }} years</span>
+                </div>
+                <div class="info-item">
+                    <strong>Email:</strong>
+                    <span>{{ user.email }}</span>
+                </div>
+                <div class="info-item">
+                    <strong>Chronic Conditions:</strong>
+                    <span>{% if user.chronic_conditions %}{{ user.chronic_conditions|join(', ') }}{% else %}None{% endif %}</span>
+                </div>
+            </div>
+        </div>
+        
+        <form method="POST">
+            <div class="form-section">
+                <h3>🩺 Diagnosis</h3>
+                <div class="form-group">
+                    <label>Disease / Condition *</label>
+                    <input type="text" name="diagnosis" placeholder="e.g., Hypertension, Type 2 Diabetes" required>
+                </div>
+            </div>
+            
+            <div class="form-section">
+                <h3>💊 Medications</h3>
+                <div id="medications-container">
+                    <div class="medication-item">
+                        <div class="item-header">
+                            <h4>Medication 1</h4>
+                        </div>
+                        <div class="form-group">
+                            <label>Medicine Name *</label>
+                            <input type="text" name="medication_name[]" placeholder="e.g., Metformin" required>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Dosage *</label>
+                                <input type="text" name="dosage[]" placeholder="e.g., 500mg" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Frequency *</label>
+                                <select name="frequency[]" required>
+                                    <option value="">Select Frequency</option>
+                                    <option value="Once daily">Once daily</option>
+                                    <option value="Twice daily">Twice daily</option>
+                                    <option value="Three times daily">Three times daily</option>
+                                    <option value="Before meals">Before meals</option>
+                                    <option value="After meals">After meals</option>
+                                    <option value="At bedtime">At bedtime</option>
+                                    <option value="As needed">As needed</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Duration *</label>
+                            <input type="text" name="duration[]" placeholder="e.g., 30 days, 2 weeks" required>
+                        </div>
+                    </div>
+                </div>
+                <button type="button" class="add-more-btn" onclick="addMedication()">
+                    ➕ Add Another Medication
+                </button>
+            </div>
+            
+            <div class="form-section">
+                <h3>🏃 Exercise & Physical Activity</h3>
+                <div id="exercises-container">
+                    <div class="exercise-item">
+                        <div class="item-header">
+                            <h4>Exercise 1</h4>
+                        </div>
+                        <div class="form-group">
+                            <label>Exercise Name</label>
+                            <input type="text" name="exercise_name[]" placeholder="e.g., Brisk Walking, Yoga">
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Duration</label>
+                                <input type="text" name="exercise_duration[]" placeholder="e.g., 30 minutes">
+                            </div>
+                            <div class="form-group">
+                                <label>Frequency</label>
+                                <select name="exercise_frequency[]">
+                                    <option value="">Select Frequency</option>
+                                    <option value="Daily">Daily</option>
+                                    <option value="3-4 times per week">3-4 times per week</option>
+                                    <option value="5 times per week">5 times per week</option>
+                                    <option value="Twice daily">Twice daily</option>
+                                    <option value="Morning only">Morning only</option>
+                                    <option value="Evening only">Evening only</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <button type="button" class="add-more-btn" onclick="addExercise()">
+                    ➕ Add Another Exercise
+                </button>
+            </div>
+            
+            <div class="form-section">
+                <h3>🥗 Diet & Lifestyle Instructions</h3>
+                <div class="form-group">
+                    <label>Dietary Recommendations</label>
+                    <textarea name="diet_instructions" placeholder="e.g., Avoid sugar, increase fiber intake, drink 8 glasses of water daily"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Precautions & Important Notes</label>
+                    <textarea name="precautions" placeholder="e.g., Monitor blood sugar daily, avoid alcohol, rest adequately"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Follow-up After (Days)</label>
+                    <input type="number" name="follow_up_days" value="7" min="1" placeholder="Number of days">
+                </div>
+            </div>
+            
+            <div class="actions">
+                <button type="submit" class="btn btn-primary">✓ Save Prescription</button>
+                <a href="/doctor-dashboard" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    /* I kept all your JavaScript logic exactly the same */
+    let medicationCount = 1;
+    let exerciseCount = 1;
+    
+    function addMedication() {
+        medicationCount++;
+        const container = document.getElementById('medications-container');
+        const newMed = document.createElement('div');
+        newMed.className = 'medication-item';
+        newMed.innerHTML = `
+            <div class="item-header">
+                <h4>Medication ${medicationCount}</h4>
+                <button type="button" class="remove-btn" onclick="this.parentElement.parentElement.remove()">Remove</button>
+            </div>
+            <div class="form-group">
+                <label>Medicine Name *</label>
+                <input type="text" name="medication_name[]" placeholder="e.g., Metformin" required>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Dosage *</label>
+                    <input type="text" name="dosage[]" placeholder="e.g., 500mg" required>
+                </div>
+                <div class="form-group">
+                    <label>Frequency *</label>
+                    <select name="frequency[]" required>
+                        <option value="">Select Frequency</option>
+                        <option value="Once daily">Once daily</option>
+                        <option value="Twice daily">Twice daily</option>
+                        <option value="Three times daily">Three times daily</option>
+                        <option value="Before meals">Before meals</option>
+                        <option value="After meals">After meals</option>
+                        <option value="At bedtime">At bedtime</option>
+                        <option value="As needed">As needed</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Duration *</label>
+                <input type="text" name="duration[]" placeholder="e.g., 30 days, 2 weeks" required>
+            </div>
+        `;
+        container.appendChild(newMed);
+    }
+    
+    function addExercise() {
+        exerciseCount++;
+        const container = document.getElementById('exercises-container');
+        const newEx = document.createElement('div');
+        newEx.className = 'exercise-item';
+        newEx.innerHTML = `
+            <div class="item-header">
+                <h4>Exercise ${exerciseCount}</h4>
+                <button type="button" class="remove-btn" onclick="this.parentElement.parentElement.remove()">Remove</button>
+            </div>
+            <div class="form-group">
+                <label>Exercise Name</label>
+                <input type="text" name="exercise_name[]" placeholder="e.g., Brisk Walking, Yoga">
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Duration</label>
+                    <input type="text" name="exercise_duration[]" placeholder="e.g., 30 minutes">
+                </div>
+                <div class="form-group">
+                    <label>Frequency</label>
+                    <select name="exercise_frequency[]">
+                        <option value="">Select Frequency</option>
+                        <option value="Daily">Daily</option>
+                        <option value="3-4 times per week">3-4 times per week</option>
+                        <option value="5 times per week">5 times per week</option>
+                        <option value="Twice daily">Twice daily</option>
+                        <option value="Morning only">Morning only</option>
+                        <option value="Evening only">Evening only</option>
+                    </select>
+                </div>
+            </div>
+        `;
+        container.appendChild(newEx);
+    }
+</script>
+{% endblock %}

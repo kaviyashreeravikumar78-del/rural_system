@@ -1,0 +1,220 @@
+{% extends "base.html" %}
+
+{% block title %}RuralCare AI | My Appointments{% endblock %}
+
+{% block styles %}
+<style>
+    .appointments-body {
+        background: #f5f7fa;
+        min-height: 100vh;
+        padding: 40px 20px;
+    }
+
+    .container-custom {
+        max-width: 900px;
+        margin: auto;
+    }
+
+    .page-header {
+        background: white;
+        padding: 30px;
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        margin-bottom: 30px;
+        border-left: 6px solid #667eea;
+    }
+
+    .page-header h2 { margin: 0; color: #333; }
+    .page-header p { color: #666; margin-top: 5px; }
+
+    /* Appointment Card Styling */
+    .appointment-card {
+        background: white;
+        padding: 25px;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+        margin-bottom: 20px;
+        transition: transform 0.2s;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .appointment-card:hover {
+        transform: translateY(-3px);
+    }
+
+    .type-tag {
+        position: absolute;
+        top: 0;
+        right: 0;
+        padding: 6px 15px;
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        border-bottom-left-radius: 12px;
+    }
+
+    .tag-hospital { background: #e3f2fd; color: #1976d2; }
+    .tag-doctor { background: #f3e5f5; color: #7b1fa2; }
+
+    .appt-main {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 20px;
+    }
+
+    .appt-info h3 { margin: 0; color: #2d3748; font-size: 20px; }
+    .appt-date { color: #667eea; font-weight: 600; margin-top: 5px; display: block; }
+
+    /* Status Badges */
+    .status-pill {
+        padding: 6px 14px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+    .status-booked { background: #def7ec; color: #03543f; }
+    .status-cancelled { background: #fde8e8; color: #9b1c1c; }
+    .status-completed { background: #edf2f7; color: #4a5568; }
+
+    /* Details Box */
+    .appt-details {
+        background: #f8fafc;
+        padding: 15px;
+        border-radius: 8px;
+        border: 1px solid #edf2f7;
+    }
+
+    .detail-item {
+        display: flex;
+        margin-bottom: 8px;
+        font-size: 14px;
+    }
+
+    .detail-item strong { width: 110px; color: #718096; }
+    .detail-item span { color: #2d3748; flex: 1; }
+
+    .contact-box {
+        margin-top: 15px;
+        padding: 10px;
+        background: #fff;
+        border: 1px dashed #cbd5e0;
+        border-radius: 6px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .btn-cancel {
+        margin-top: 15px;
+        background: #fff;
+        color: #e53e3e;
+        border: 1px solid #e53e3e;
+        padding: 8px 16px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-weight: 600;
+        transition: all 0.2s;
+        text-decoration: none;
+        display: inline-block;
+    }
+
+    .btn-cancel:hover {
+        background: #e53e3e;
+        color: white;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 60px;
+        background: white;
+        border-radius: 12px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="appointments-body">
+    <div class="container-custom">
+        
+        <div class="page-header">
+            <h2>My Appointments</h2>
+            <p>Track your upcoming visits and medical history</p>
+        </div>
+
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                {% for message in messages %}
+                    <div style="background:#c6f6d5; color:#22543d; padding:15px; border-radius:8px; margin-bottom:20px; font-weight:600;">
+                        ✓ {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        {% if appointments %}
+            {% for appt in appointments %}
+            <div class="appointment-card">
+                {% if appt.appointment_type == "hospital" %}
+                    <div class="type-tag tag-hospital">Hospital</div>
+                {% else %}
+                    <div class="type-tag tag-doctor">Private Doctor</div>
+                {% endif %}
+
+                <div class="appt-main">
+                    <div class="appt-info">
+                        <h3>{{ appt.hospital_name if appt.appointment_type == "hospital" else appt.doctor_name }}</h3>
+                        <span class="appt-date">📅 {{ appt.date }} | 🕒 {{ appt.time }}</span>
+                    </div>
+                    <span class="status-pill status-{{ appt.status.lower() }}">
+                        {{ appt.status }}
+                    </span>
+                </div>
+
+                <div class="appt-details">
+                    {% if appt.appointment_type == "hospital" %}
+                        <div class="detail-item">
+                            <strong>Department:</strong>
+                            <span>{{ appt.department }}</span>
+                        </div>
+                        <div class="detail-item">
+                            <strong>Address:</strong>
+                            <span>{{ appt.hospital_address }}</span>
+                        </div>
+                    {% endif %}
+                    
+                    <div class="detail-item">
+                        <strong>Reason:</strong>
+                        <span>{{ appt.reason or "General Consultation" }}</span>
+                    </div>
+
+                    <div class="contact-box">
+                        <span style="font-size: 18px;">📞</span>
+                        <div>
+                            <small style="display:block; color:#718096;">Contact Reference</small>
+                            <strong>{{ appt.hospital_contact if appt.appointment_type == "hospital" else "Direct via Dashboard" }}</strong>
+                        </div>
+                    </div>
+                </div>
+
+                {% if appt.status == "Booked" %}
+                <a href="/cancel/{{ appt._id }}" class="btn-cancel" onclick="return confirm('Cancel this appointment?')">
+                    Cancel Appointment
+                </a>
+                {% endif %}
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="empty-state">
+                <div style="font-size: 50px; margin-bottom: 20px;">🗓️</div>
+                <h3>No Appointments Yet</h3>
+                <p>You haven't booked any medical visits yet.</p>
+                <a href="/find-hospital" class="btn-main-action" style="margin-top:20px; display:inline-block; text-decoration:none;">Find a Hospital</a>
+            </div>
+        {% endif %}
+
+    </div>
+</div>
+{% endblock %}

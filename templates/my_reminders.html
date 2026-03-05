@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block title %}My Reminders | RuralCare AI{% endblock %}
+
+{% block styles %}
+<style>
+    .reminders-page { background: #f8fafc; min-height: 100vh; padding: 40px 20px; }
+    .reminders-container { max-width: 800px; margin: 0 auto; }
+    .reminder-card { background: white; border-radius: 12px; padding: 20px; margin-bottom: 15px; display: flex; align-items: center; gap: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); border-left: 5px solid #6366f1; }
+    .reminder-time { background: #e0e7ff; color: #4338ca; padding: 8px 15px; border-radius: 8px; font-weight: 800; min-width: 90px; text-align: center; }
+    .reminder-info h4 { margin: 0; color: #1e293b; }
+    .reminder-info p { margin: 5px 0 0 0; color: #64748b; font-size: 14px; }
+    .empty-state { text-align: center; padding: 60px; color: #94a3b8; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="reminders-page">
+    <div class="reminders-container">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+            <h2>🔔 Health Reminders</h2>
+            <a href="/daily-report" style="color: #6366f1; text-decoration: none; font-weight: 600;">← Back to Report</a>
+        </div>
+
+        {% if reminders or prescriptions %}
+            {% for rem in reminders %}
+            <div class="reminder-card">
+                <div class="reminder-time">{{ rem.time }}</div>
+                <div class="reminder-info">
+                    <h4>{{ rem.task }}</h4>
+                    <p>Daily Routine Activity</p>
+                </div>
+            </div>
+            {% endfor %}
+
+            {% for rx in prescriptions %}
+                {% for med in rx.medications %}
+                <div class="reminder-card" style="border-left-color: #10b981;">
+                    <div class="reminder-time">{{ med.frequency }}</div>
+                    <div class="reminder-info">
+                        <h4>{{ med.name }}</h4>
+                        <p>Dosage: {{ med.dosage }} • Duration: {{ med.duration }}</p>
+                    </div>
+                </div>
+                {% endfor %}
+            {% endfor %}
+        {% else %}
+            <div class="empty-state">
+                <i class="fa-solid fa-bell-slash" style="font-size: 40px; margin-bottom: 15px; display: block;"></i>
+                <p>No active reminders found. Your doctor's prescriptions will appear here automatically.</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

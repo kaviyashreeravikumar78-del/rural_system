@@ -1,0 +1,181 @@
+{% extends "base.html" %}
+
+{% block title %}Symptom Analysis | RuralCare AI{% endblock %}
+
+{% block styles %}
+<style>
+    :root {
+        --indigo-600: #4f46e5;
+        --slate-50: #f8fafc;
+        --slate-100: #f1f5f9;
+        --slate-400: #94a3b8;
+        --slate-600: #475569;
+        --slate-900: #1e293b;
+    }
+
+    .symptom-container {
+        max-width: 900px;
+        margin: 40px auto;
+        padding: 0 20px;
+    }
+
+    .glass-card {
+        background: white;
+        border-radius: 24px;
+        padding: 40px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.04);
+        border: 1px solid #e2e8f0;
+    }
+
+    .search-wrapper {
+        position: relative;
+        margin-bottom: 25px;
+    }
+
+    .search-icon {
+        position: absolute;
+        left: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--slate-400);
+    }
+
+    .custom-search {
+        width: 100%;
+        padding: 15px 15px 15px 45px;
+        border-radius: 12px;
+        border: 2px solid var(--slate-100);
+        background: var(--slate-50);
+        transition: all 0.3s;
+        font-size: 1rem;
+    }
+
+    .custom-search:focus {
+        border-color: #6366f1;
+        background: white;
+        outline: none;
+        box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+    }
+
+    .symptoms-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+        gap: 12px;
+        max-height: 450px;
+        overflow-y: auto;
+        padding: 5px 10px 5px 2px;
+        margin-bottom: 30px;
+    }
+
+    .symptom-checkbox { display: none; }
+
+    .symptom-tag {
+        display: block;
+        padding: 12px;
+        background: var(--slate-100);
+        border: 2px solid transparent;
+        border-radius: 10px;
+        text-align: center;
+        cursor: pointer;
+        font-weight: 500;
+        font-size: 0.9rem;
+        transition: all 0.2s;
+        color: var(--slate-600);
+        user-select: none;
+    }
+
+    .symptom-checkbox:checked + .symptom-tag {
+        background: #eef2ff;
+        border-color: #6366f1;
+        color: #4f46e5;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
+
+    .analysis-footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding-top: 25px;
+        border-top: 1px solid var(--slate-100);
+    }
+
+    .btn-analyze {
+        background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+        color: white;
+        padding: 14px 35px;
+        border-radius: 12px;
+        border: none;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .btn-analyze:disabled {
+        background: var(--slate-400);
+        cursor: not-allowed;
+    }
+
+    .symptoms-grid::-webkit-scrollbar { width: 6px; }
+    .symptoms-grid::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="symptom-container">
+    <a href="/dashboard" style="text-decoration:none; color:#6366f1; font-weight:600; font-size:0.9rem;">← Back to Home</a>
+    
+    <div class="glass-card" style="margin-top:20px;">
+        <div style="margin-bottom: 30px;">
+            <h2 style="margin:0 0 10px 0; color:var(--slate-900);">Describe your symptoms</h2>
+            <p style="margin:0; color:var(--slate-600);">Select your symptoms for an AI-powered health assessment.</p>
+        </div>
+
+        <div class="search-wrapper">
+            <span class="search-icon">🔍</span>
+            <input type="text" id="sympSearch" class="custom-search" placeholder="Search symptoms..." onkeyup="filterList()">
+        </div>
+
+        <form action="{{ url_for('report') }}" method="POST" id="analysisForm">
+            <div class="symptoms-grid" id="symptomGrid">
+                {% for symptom in symptoms %}
+                <div class="symptom-item">
+                    <input type="checkbox" name="symptoms" value="{{ symptom }}" 
+                           id="symp-{{ loop.index }}" class="symptom-checkbox" onchange="updateUI()">
+                    <label for="symp-{{ loop.index }}" class="symptom-tag">
+                        {{ symptom.replace('_', ' ').title() }}
+                    </label>
+                </div>
+                {% endfor %}
+            </div>
+
+            <div class="analysis-footer">
+                <div class="selection-count">
+                    <span id="selectedNumber" style="color: #4f46e5; font-weight: bold;">0</span> symptoms selected
+                </div>
+                <button type="submit" class="btn-analyze" id="submitBtn" disabled>
+                    ✨ Analyze with RuralCare AI
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    function filterList() {
+        const query = document.getElementById('sympSearch').value.toLowerCase();
+        const items = document.querySelectorAll('.symptom-item');
+        items.forEach(item => {
+            const text = item.querySelector('.symptom-tag').innerText.toLowerCase();
+            item.style.display = text.includes(query) ? "block" : "none";
+        });
+    }
+
+    function updateUI() {
+        // Updated selector to find 'symptoms' checkboxes
+        const checkedCount = document.querySelectorAll('.symptom-checkbox:checked').length;
+        document.getElementById('selectedNumber').innerText = checkedCount;
+        document.getElementById('submitBtn').disabled = (checkedCount === 0);
+    }
+</script>
+{% endblock %}

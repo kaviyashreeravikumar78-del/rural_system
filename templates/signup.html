@@ -1,0 +1,274 @@
+{% extends "base.html" %}
+
+{% block title %}Create Account | RuralCare AI{% endblock %}
+
+{% block styles %}
+<style>
+    .signup-body {
+        background: linear-gradient(135deg, #f0f4ff 0%, #e5e7eb 100%);
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 40px 20px;
+    }
+
+    .signup-card {
+        background: white;
+        width: 100%;
+        max-width: 550px;
+        border-radius: 24px;
+        padding: 45px;
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    }
+
+    .header-area {
+        text-align: center;
+        margin-bottom: 35px;
+    }
+
+    .header-area h2 {
+        font-size: 2rem;
+        font-weight: 800;
+        color: #1e293b;
+        margin-bottom: 8px;
+    }
+
+    /* Persona Toggle */
+    .persona-switcher {
+        display: flex;
+        background: #f1f5f9;
+        padding: 6px;
+        border-radius: 14px;
+        margin-bottom: 30px;
+    }
+
+    .persona-btn {
+        flex: 1;
+        padding: 12px;
+        border: none;
+        background: transparent;
+        font-weight: 600;
+        color: #64748b;
+        cursor: pointer;
+        border-radius: 10px;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+    }
+
+    .persona-btn.active {
+        background: white;
+        color: #3b82f6;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Form Fields */
+    .form-section {
+        display: grid;
+        gap: 20px;
+    }
+
+    .input-group {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+    }
+
+    .input-group label {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: #475569;
+    }
+
+    .input-field {
+        padding: 12px 16px;
+        border-radius: 10px;
+        border: 2px solid #e2e8f0;
+        font-size: 1rem;
+        transition: all 0.2s;
+        outline: none;
+    }
+
+    .input-field:focus {
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+    }
+
+    .btn-signup {
+        background: #1e293b;
+        color: white;
+        padding: 16px;
+        border-radius: 12px;
+        border: none;
+        font-weight: 700;
+        font-size: 1rem;
+        cursor: pointer;
+        margin-top: 20px;
+        transition: transform 0.2s, background 0.2s;
+    }
+
+    .btn-signup:hover {
+        background: #0f172a;
+        transform: translateY(-1px);
+    }
+
+    .dynamic-fields {
+        display: none;
+        border-top: 1px dashed #e2e8f0;
+        padding-top: 20px;
+        margin-top: 10px;
+        animation: fadeIn 0.4s ease;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .active-fields {
+        display: grid;
+        gap: 20px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="signup-body">
+    <div class="signup-card">
+        <div class="header-area">
+            <h2>Create Account</h2>
+            <p style="color: #64748b;">Join RuralCare AI to access personalized healthcare</p>
+        </div>
+
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                {% for message in messages %}
+                <div style="background:#fee2e2; color:#b91c1c; padding:12px; border-radius:10px; margin-bottom:20px; font-size:0.9rem; font-weight:500;">
+                    ⚠️ {{ message }}
+                </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <form method="POST" action="/signup">
+            <div class="persona-switcher">
+                <button type="button" class="persona-btn active" id="btn-user" onclick="switchUserType('user')">
+                    <span>👤</span> Patient
+                </button>
+                <button type="button" class="persona-btn" id="btn-doctor" onclick="switchUserType('doctor')">
+                    <span>👨‍⚕️</span> Doctor
+                </button>
+            </div>
+
+            <input type="hidden" name="user_type" id="user_type_input" value="user">
+
+            <div class="form-section">
+                <div class="input-group">
+                    <label>Full Name</label>
+                    <input type="text" name="name" class="input-field" placeholder="John Doe" required>
+                </div>
+
+                <div class="input-group">
+                    <label>Email Address</label>
+                    <input type="email" name="email" class="input-field" placeholder="john@example.com" required>
+                </div>
+
+                <div class="input-group">
+                    <label>Password</label>
+                    <input type="password" name="password" class="input-field" placeholder="••••••••" required>
+                </div>
+
+                <div id="patient-fields" class="dynamic-fields active-fields">
+                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px;">
+                        <div class="input-group">
+                            <label>Age</label>
+                            <input type="number" name="age" id="input-age" class="input-field" placeholder="25" required>
+                        </div>
+                        <div class="input-group">
+                            <label>Language</label>
+                            <select name="language" class="input-field">
+                                <option value="English">English</option>
+                                <option value="Hindi">Hindi</option>
+                                <option value="Tamil">Tamil</option>
+                                <option value="Telugu">Telugu</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label>Chronic Conditions</label>
+                        <input type="text" name="chronic" class="input-field" placeholder="e.g. Asthma (None if N/A)">
+                    </div>
+                </div>
+
+                <div id="doctor-fields" class="dynamic-fields">
+                    <div class="input-group">
+                        <label>Specialization</label>
+                        <select name="specialization" id="select-spec" class="input-field">
+                            <option value="General Physician">General Physician</option>
+                            <option value="Pediatrician">Pediatrician</option>
+                            <option value="Cardiologist">Cardiologist</option>
+                            <option value="Dermatologist">Dermatologist</option>
+                        </select>
+                    </div>
+                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px;">
+                        <div class="input-group">
+                            <label>Experience (Years)</label>
+                            <input type="number" name="experience" id="input-exp" class="input-field" placeholder="5">
+                        </div>
+                        <div class="input-group">
+                            <label>Consultation Fee (₹)</label>
+                            <input type="number" name="fee" id="input-fee" class="input-field" placeholder="500">
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label>Hospital/Clinic & City</label>
+                        <input type="text" name="hospital" id="input-hosp" class="input-field" placeholder="City Hospital, Mumbai">
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-signup">Create Account</button>
+            </div>
+        </form>
+
+        <p style="text-align:center; margin-top:25px; font-size:0.9rem; color:#64748b;">
+            Already have an account? <a href="/login" style="color:#3b82f6; font-weight:700; text-decoration:none;">Sign In</a>
+        </p>
+    </div>
+</div>
+
+<script>
+    function switchUserType(type) {
+        // Update Hidden Input
+        document.getElementById('user_type_input').value = type;
+
+        // Toggle Buttons
+        document.getElementById('btn-user').classList.toggle('active', type === 'user');
+        document.getElementById('btn-doctor').classList.toggle('active', type === 'doctor');
+
+        // Toggle Field Visibility
+        const patientDiv = document.getElementById('patient-fields');
+        const doctorDiv = document.getElementById('doctor-fields');
+        
+        if (type === 'user') {
+            patientDiv.classList.add('active-fields');
+            doctorDiv.classList.remove('active-fields');
+            // Set required attributes
+            document.getElementById('input-age').required = true;
+            document.getElementById('input-exp').required = false;
+            document.getElementById('input-fee').required = false;
+            document.getElementById('input-hosp').required = false;
+        } else {
+            patientDiv.classList.remove('active-fields');
+            doctorDiv.classList.add('active-fields');
+            // Set required attributes
+            document.getElementById('input-age').required = false;
+            document.getElementById('input-exp').required = true;
+            document.getElementById('input-fee').required = true;
+            document.getElementById('input-hosp').required = true;
+        }
+    }
+</script>
+{% endblock %}

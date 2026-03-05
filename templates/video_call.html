@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Consultation - RuralCare AI</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 15px 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            color: #667eea;
+            font-size: 24px;
+        }
+
+        .header-info {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .participant-info {
+            background: #f0f0f0;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            color: #333;
+        }
+
+        .end-call-btn {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 10px 25px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .end-call-btn:hover {
+            background: #c0392b;
+            transform: scale(1.05);
+        }
+
+        #jitsi-container {
+            width: 100%;
+            height: calc(100vh - 70px);
+        }
+
+        .loading-screen {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            color: white;
+            z-index: 999;
+        }
+
+        .loading-screen h2 {
+            margin-bottom: 20px;
+            font-size: 28px;
+        }
+
+        .spinner {
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top: 4px solid white;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .connection-info {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px auto;
+            max-width: 500px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .connection-info h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .connection-info p {
+            color: #555;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🏥 RuralCare AI - Video Consultation</h1>
+        <div class="header-info">
+            <div class="participant-info">
+                👤 {{ display_name }}
+            </div>
+            <button class="end-call-btn" onclick="endCall()">
+                End Call
+            </button>
+        </div>
+    </div>
+
+    <div id="loading" class="loading-screen">
+        <h2>Connecting to Video Call...</h2>
+        <div class="spinner"></div>
+        <div class="connection-info">
+            <h3>Please wait</h3>
+            <p>We're setting up your secure video consultation room. This may take a few seconds.</p>
+        </div>
+    </div>
+
+    <div id="jitsi-container"></div>
+
+    <!-- Jitsi Meet API -->
+    <script src='https://meet.jit.si/external_api.js'></script>
+    
+    <script>
+        const domain = 'meet.jit.si';
+        const options = {
+            roomName: '{{ room_name }}',
+            width: '100%',
+            height: '100%',
+            parentNode: document.querySelector('#jitsi-container'),
+            userInfo: {
+                displayName: '{{ display_name }}'
+            },
+            configOverwrite: {
+                startWithAudioMuted: false,
+                startWithVideoMuted: false,
+                enableWelcomePage: false,
+                prejoinPageEnabled: false,
+                disableDeepLinking: true,
+            },
+            interfaceConfigOverwrite: {
+                SHOW_JITSI_WATERMARK: false,
+                SHOW_WATERMARK_FOR_GUESTS: false,
+                DEFAULT_BACKGROUND: '#667eea',
+                TOOLBAR_BUTTONS: [
+                    'microphone', 'camera', 'closedcaptions', 'desktop', 
+                    'fullscreen', 'fodeviceselection', 'hangup', 'chat', 
+                    'recording', 'livestreaming', 'etherpad', 'settings', 
+                    'raisehand', 'videoquality', 'filmstrip', 'stats', 
+                    'shortcuts', 'tileview', 'download', 'help', 'mute-everyone'
+                ],
+                SETTINGS_SECTIONS: [ 'devices', 'language', 'moderator', 'profile', 'calendar' ],
+            }
+        };
+
+        // Initialize Jitsi
+        const api = new JitsiMeetExternalAPI(domain, options);
+
+        // Hide loading screen when ready
+        api.addEventListener('videoConferenceJoined', () => {
+            document.getElementById('loading').style.display = 'none';
+            console.log('Video conference joined successfully');
+        });
+
+        // Handle when call ends
+        api.addEventListener('readyToClose', () => {
+            endCall();
+        });
+
+        // Function to end call
+        function endCall() {
+            if (confirm('Are you sure you want to end this consultation?')) {
+                // Mark consultation as completed
+                fetch('/end-video-consultation/{{ consultation_id }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Consultation ended:', data);
+                })
+                .catch(error => {
+                    console.error('Error ending consultation:', error);
+                });
+
+                // Dispose of Jitsi API
+                api.dispose();
+                
+                // Redirect based on user type
+                const userType = '{{ user_type }}';
+                if (userType === 'user') {
+                    window.location.href = '/my-consultations';
+                } else {
+                    window.location.href = '/doctor-dashboard';
+                }
+            }
+        }
+
+        // Handle browser back button
+        window.addEventListener('beforeunload', (event) => {
+            event.preventDefault();
+            event.returnValue = 'Are you sure you want to leave the consultation?';
+        });
+    </script>
+</body>
+</html>

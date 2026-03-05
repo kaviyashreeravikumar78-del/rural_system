@@ -1,0 +1,147 @@
+{% extends "base.html" %}
+
+{% block title %}RuralCare AI | Dashboard{% endblock %}
+
+{% block styles %}
+<style>
+    :root {
+        --primary-blue: #007bff;
+        --text-muted: #64748b;
+        --card-bg: #ffffff;
+    }
+
+    .container {
+        max-width: 1100px;
+        margin: 0 auto;
+    }
+
+    header {
+        text-align: center;
+        margin-bottom: 50px;
+    }
+
+    header h1 {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 10px;
+    }
+
+    header p { color: var(--text-muted); font-size: 1.1rem; }
+
+    .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 25px;
+    }
+
+    .card {
+        background: var(--card-bg);
+        padding: 30px;
+        border-radius: 20px;
+        text-align: left;
+        text-decoration: none;
+        color: inherit;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -1px rgba(0,0,0,0.03);
+        display: flex;
+        flex-direction: column;
+        border: 1px solid #edf2f7;
+    }
+
+    .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);
+    }
+
+    .icon-box {
+        width: 50px; height: 50px;
+        border-radius: 12px;
+        display: flex; align-items: center; justify-content: center;
+        margin-bottom: 20px;
+        font-size: 1.5rem; color: white;
+    }
+
+    .card h3 { margin: 0 0 10px 0; font-size: 1.25rem; font-weight: 700; }
+
+    .card p {
+        color: var(--text-muted); font-size: 0.9rem;
+        line-height: 1.5; margin-bottom: 20px; flex-grow: 1;
+    }
+
+    .explore-link {
+        color: var(--primary-blue); font-weight: 600;
+        font-size: 0.9rem; display: flex; align-items: center; gap: 5px;
+    }
+
+    .bg-purple { background: #a855f7; }
+    .bg-blue   { background: #3b82f6; }
+    .bg-orange { background: #f97316; }
+    .bg-green  { background: #10b981; }
+    .bg-red    { background: #ef4444; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <header>
+        <h1>Complete Healthcare Solution</h1>
+        <p>Welcome back, <strong>{{ name }}</strong>. Everything you need for better health in one platform.</p>
+    </header>
+
+    <div class="grid">
+        <a href="/report" class="card">
+            <div class="icon-box bg-blue">
+                <i class="fa-solid fa-stethoscope"></i>
+            </div>
+            <h3>Smart Symptom Analysis</h3>
+            <p>AI-powered symptom checker with voice input support for rural accessibility.</p>
+            <div class="explore-link">Explore <i class="fa-solid fa-chevron-right"></i></div>
+        </a>
+
+        <a href="/doctors" class="card">
+            <div class="icon-box bg-purple">
+                <i class="fa-solid fa-video"></i>
+            </div>
+            <h3>Consultations</h3>
+            <p>Connect with professional doctors instantly via high-definition video call.</p>
+            <div class="explore-link">Explore <i class="fa-solid fa-chevron-right"></i></div>
+        </a>
+
+        <a href="/find-hospital" class="card">
+            <div class="icon-box bg-green">
+                <i class="fa-solid fa-location-dot"></i>
+            </div>
+            <h3>Hospital Finder</h3>
+            <p>Locate nearby hospitals with real-time bed availability and emergency services.</p>
+            <div class="explore-link">Explore <i class="fa-solid fa-chevron-right"></i></div>
+        </a>
+
+        <a href="/daily-report" class="card">
+            <div class="icon-box bg-orange">
+                <i class="fa-solid fa-shield-heart"></i>
+            </div>
+            <h3>📊 Track Daily Progress</h3>
+            <p>Track your daily progress.</p>
+            <div class="explore-link">Explore <i class="fa-solid fa-chevron-right"></i></div>
+        </a>
+
+        <a href="/my-appointments" class="card">
+            <div class="icon-box bg-red">
+                <i class="fa-solid fa-calendar-check"></i>
+            </div>
+            <h3>Appointments</h3>
+            <p>Manage your upcoming visits and view your consultation history.</p>
+            <div class="explore-link">Explore <i class="fa-solid fa-chevron-right"></i></div>
+        </a>
+
+        <a href="/first_aid" class="card">
+            <div class="icon-box bg-red">
+                <i class="fa-solid fa-kit-medical"></i>
+            </div>
+            <h3>First Aid Assistant</h3>
+            <p>Get instant first aid advice with image analysis.</p>
+            <div class="explore-link">Explore <i class="fa-solid fa-chevron-right"></i></div>
+        </a>
+    </div>
+</div>
+{% endblock %}

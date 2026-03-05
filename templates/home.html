@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block title %}RuralCare AI | Home{% endblock %}
+
+{% block styles %}
+<style>
+    .home-wrapper {
+        text-align: center;
+        padding: 80px 20px;
+    }
+
+    .home-wrapper h1 {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 14px;
+        color: #1e293b;
+    }
+
+    .home-wrapper p {
+        font-size: 1.1rem;
+        color: #64748b;
+        margin-bottom: 36px;
+    }
+
+    .btn {
+        padding: 12px 28px;
+        background: #3498db;
+        color: white;
+        text-decoration: none;
+        border-radius: 8px;
+        margin: 8px;
+        font-weight: 600;
+        font-size: 1rem;
+        display: inline-block;
+        transition: background 0.2s;
+    }
+
+    .btn:hover { background: #2980b9; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="home-wrapper">
+    <h1>🏥 Rural Health AI</h1>
+    <p>Smart Health Prediction & Doctor Booking</p>
+    <a href="/signup" class="btn">Signup</a>
+    <a href="/login" class="btn">Login</a>
+</div>
+{% endblock %}

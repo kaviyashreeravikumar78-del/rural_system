@@ -1,0 +1,251 @@
+{% extends "base.html" %}
+
+{% block title %}My Prescription | RuralCare AI{% endblock %}
+
+{% block styles %}
+<style>
+    :root {
+        --rx-primary: #4338ca;
+        --rx-secondary: #1e293b;
+        --rx-bg: #f1f5f9;
+        --rx-border: #e2e8f0;
+    }
+
+    .prescription-page {
+        background: var(--rx-bg);
+        min-height: 100vh;
+        padding: 40px 20px;
+    }
+
+    .rx-container {
+        max-width: 850px;
+        margin: 0 auto;
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+        overflow: hidden;
+        position: relative;
+    }
+
+    /* Professional Rx Header */
+    .rx-header {
+        background: var(--rx-secondary);
+        color: white;
+        padding: 40px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .rx-symbol {
+        font-size: 3.5rem;
+        font-weight: 900;
+        color: rgba(255, 255, 255, 0.1);
+        position: absolute;
+        top: 20px;
+        left: 20px;
+    }
+
+    /* Branding & Doctor Info */
+    .rx-meta {
+        border-bottom: 2px solid var(--rx-bg);
+        padding: 30px 40px;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+    }
+
+    .meta-box h5 {
+        margin: 0 0 5px 0;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        color: #94a3b8;
+        letter-spacing: 1px;
+    }
+
+    /* Diagnosis & Content */
+    .rx-content {
+        padding: 40px;
+    }
+
+    .diagnosis-alert {
+        background: #fefce8;
+        border: 1px solid #fef08a;
+        padding: 20px;
+        border-radius: 12px;
+        margin-bottom: 35px;
+    }
+
+    .section-title {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: var(--rx-secondary);
+        border-bottom: 2px solid var(--rx-bg);
+        padding-bottom: 10px;
+        margin-bottom: 20px;
+    }
+
+    /* Medication Table Style */
+    .med-list {
+        display: grid;
+        gap: 15px;
+        margin-bottom: 40px;
+    }
+
+    .med-card {
+        background: #f8fafc;
+        border: 1px solid var(--rx-border);
+        padding: 20px;
+        border-radius: 12px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .med-info h4 { margin: 0; color: var(--rx-primary); font-size: 1.1rem; }
+    .med-details { font-size: 0.9rem; color: #64748b; margin-top: 4px; }
+
+    .frequency-tag {
+        background: #e0e7ff;
+        color: #4338ca;
+        padding: 6px 14px;
+        border-radius: 8px;
+        font-weight: 700;
+        font-size: 0.85rem;
+    }
+
+    /* Footer & Print */
+    .rx-footer {
+        background: #f8fafc;
+        padding: 30px 40px;
+        border-top: 1px solid var(--rx-border);
+        text-align: center;
+    }
+
+    .btn-row {
+        display: flex;
+        gap: 15px;
+        margin-top: 30px;
+    }
+
+    .btn-rx {
+        flex: 1;
+        padding: 15px;
+        border-radius: 12px;
+        font-weight: 700;
+        text-decoration: none;
+        transition: all 0.2s;
+        text-align: center;
+    }
+
+    .btn-rx-primary { background: var(--rx-primary); color: white; }
+    .btn-rx-outline { border: 1px solid var(--rx-border); color: #64748b; }
+
+    @media print {
+        .btn-row, .navbar, .floating-print { display: none !important; }
+        body { background: white; padding: 0; }
+        .rx-container { box-shadow: none; max-width: 100%; border: none; }
+        .rx-page { padding: 0; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="prescription-page">
+    <div class="rx-container">
+        <div class="rx-symbol">Rx</div>
+        
+        <header class="rx-header">
+            <div>
+                <h1 style="margin:0; font-size: 1.8rem;">Medical Prescription</h1>
+                <p style="margin:5px 0 0 0; opacity:0.8;">Case ID: #{{ consultation._id|default('99281') }}</p>
+            </div>
+            <div style="text-align: right;">
+                <h3 style="margin:0; font-size: 1.2rem;">RuralCare AI</h3>
+                <p style="margin:0; font-size: 0.8rem; opacity:0.7;">Verified Telehealth Record</p>
+            </div>
+        </header>
+
+        <div class="rx-meta">
+            <div class="meta-box">
+                <h5>Prescribing Physician</h5>
+                <p><strong>Dr. {{ consultation.prescription.doctor_name }}</strong><br>
+                {{ consultation.doctor_specialization|default('General Consultant') }}</p>
+            </div>
+            <div class="meta-box" style="text-align: right;">
+                <h5>Patient Name</h5>
+                <p><strong>{{ consultation.user_name }}</strong><br>
+                Date: {{ consultation.prescription.prescribed_date.strftime('%d %b, %Y') if consultation.prescription.prescribed_date else 'N/A' }}</p>
+            </div>
+        </div>
+
+        <div class="rx-content">
+            <div class="diagnosis-alert">
+                <span style="font-size:0.75rem; font-weight:800; color:#856404; text-transform:uppercase;">Primary Diagnosis</span>
+                <p style="margin:8px 0 0 0; font-size:1.1rem; font-weight:600; color:#1e293b;">
+                    {{ consultation.prescription.diagnosis }}
+                </p>
+            </div>
+
+            <h3 class="section-title"><i class="fa-solid fa-pills"></i> Medications & Dosage</h3>
+            <div class="med-list">
+                {% for medication in consultation.prescription.medications %}
+                <div class="med-card">
+                    <div class="med-info">
+                        <h4>{{ medication.name }}</h4>
+                        <div class="med-details">
+                            <span>{{ medication.dosage }}</span> • 
+                            <span>For {{ medication.duration }}</span>
+                        </div>
+                    </div>
+                    <div class="frequency-tag">
+                        {{ medication.frequency }}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            {% if consultation.prescription.exercises %}
+            <h3 class="section-title"><i class="fa-solid fa-person-running"></i> Rehabilitation & Exercise</h3>
+            <ul style="padding-left: 20px; color: #475569;">
+                {% for exercise in consultation.prescription.exercises %}
+                    <li style="margin-bottom:10px;">
+                        <strong>{{ exercise.name }}:</strong> {{ exercise.duration }} ({{ exercise.frequency }})
+                    </li>
+                {% endfor %}
+            </ul>
+            {% endif %}
+
+            {% if consultation.prescription.diet_instructions or consultation.prescription.precautions %}
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-top: 40px;">
+                <div>
+                    <h4 style="font-size:0.9rem; color:#64748b;">🥗 Dietary Instructions</h4>
+                    <p style="font-size:0.9rem; line-height:1.6;">{{ consultation.prescription.diet_instructions or 'Standard healthy diet.' }}</p>
+                </div>
+                <div>
+                    <h4 style="font-size:0.9rem; color:#64748b;">⚠️ Vital Precautions</h4>
+                    <p style="font-size:0.9rem; line-height:1.6;">{{ consultation.prescription.precautions or 'Monitor symptoms daily.' }}</p>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="rx-footer">
+            <p style="font-weight: 700; color: #1e293b;">📅 Next Follow-up: {{ consultation.prescription.follow_up_days }} Days</p>
+            <p style="font-size: 0.8rem; color: #94a3b8; margin-top: 10px;">
+                Digital Signature Verified. This prescription is valid for 30 days from the date of issue.
+            </p>
+            
+            <div class="btn-row">
+                <a href="/daily-report" class="btn-rx btn-rx-primary">Log Daily Recovery</a>
+                <a href="javascript:window.print()" class="btn-rx btn-rx-outline">
+                    <i class="fa-solid fa-print"></i> Print PDF
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

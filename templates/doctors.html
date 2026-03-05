@@ -1,0 +1,257 @@
+{% extends "base.html" %}
+
+{% block title %}RuralCare AI | Consult Doctors{% endblock %}
+
+{% block styles %}
+<style>
+    /* Main container and body styling */
+    .doctors-page-body { background: #f5f7fa; padding-bottom: 60px; min-height: 100vh; }
+    
+    .navbar-doctors {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 20px 40px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    
+    .navbar-doctors h1 { font-size: 24px; color: white; margin: 0; }
+    .navbar-doctors a {
+        color: white;
+        text-decoration: none;
+        padding: 10px 20px;
+        background: rgba(255,255,255,0.2);
+        border-radius: 5px;
+        transition: background 0.3s;
+    }
+    .navbar-doctors a:hover { background: rgba(255,255,255,0.3); }
+
+    .container-doctors { max-width: 1200px; margin: 40px auto; padding: 0 20px; }
+    
+    .page-header { text-align: center; margin-bottom: 40px; }
+    .page-header h2 { color: #333; font-size: 32px; margin-bottom: 10px; }
+    .page-header p { color: #666; font-size: 16px; }
+    
+    /* Grid and Cards */
+    .doctors-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+        gap: 25px;
+    }
+    
+    .doctor-card {
+        background: white;
+        border-radius: 10px;
+        padding: 25px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        transition: all 0.3s;
+        position: relative;
+    }
+    
+    .doctor-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+    }
+    
+    .availability-badge {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+    
+    .badge-available { background: #d4edda; color: #155724; }
+    .badge-busy { background: #f8d7da; color: #721c24; }
+    
+    .doctor-header { margin-bottom: 15px; }
+    .doctor-name { color: #333; font-size: 22px; margin-bottom: 5px; }
+    .specialization { color: #667eea; font-size: 14px; font-weight: 600; }
+    
+    .doctor-info { margin: 15px 0; }
+    .info-row { display: flex; align-items: center; margin: 8px 0; color: #666; font-size: 14px; }
+    .info-row svg { width: 16px; height: 16px; margin-right: 8px; color: #667eea; }
+    
+    .btn-consult {
+        width: 100%;
+        padding: 12px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: transform 0.2s;
+        margin-top: 15px;
+    }
+    
+    .btn-consult:hover:not(:disabled) { transform: translateY(-2px); }
+    .btn-consult:disabled { background: #ccc; cursor: not-allowed; }
+    
+    /* Modal Styles */
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.5);
+    }
+    
+    .modal.active { display: flex; align-items: center; justify-content: center; }
+    
+    .modal-content {
+        background: white;
+        padding: 30px;
+        border-radius: 10px;
+        width: 90%;
+        max-width: 500px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+    }
+    
+    .modal-header { margin-bottom: 20px; }
+    .modal-header h3 { color: #333; margin: 0; }
+    .modal-header p { color: #666; font-size: 14px; margin-top: 5px; }
+    
+    .form-group { margin-bottom: 20px; }
+    .form-group label { display: block; color: #555; margin-bottom: 8px; font-size: 14px; font-weight: 600; }
+    .form-group textarea {
+        width: 100%;
+        padding: 12px;
+        border: 2px solid #e0e0e0;
+        border-radius: 8px;
+        font-size: 14px;
+        font-family: inherit;
+        resize: vertical;
+        min-height: 120px;
+    }
+    .form-group textarea:focus { outline: none; border-color: #667eea; }
+    
+    .modal-actions { display: flex; gap: 10px; }
+    .btn-submit { flex: 1; padding: 12px; background: #27ae60; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; }
+    .btn-cancel { flex: 1; padding: 12px; background: #e0e0e0; color: #333; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="doctors-page-body">
+    <div class="navbar-doctors">
+        <h1>🏥 Consult Doctors</h1>
+        <a href="/dashboard">← Back to Dashboard</a>
+    </div>
+    
+    <div class="container-doctors">
+        <div class="page-header">
+            <h2>Available Doctors</h2>
+            <p>Connect with experienced healthcare professionals</p>
+        </div>
+        
+        <div class="doctors-grid">
+            {% for doctor in doctors %}
+            <div class="doctor-card">
+                <span class="availability-badge {% if doctor.is_available_now %}badge-available{% else %}badge-busy{% endif %}">
+                    {% if doctor.is_available_now %}● Available{% else %}● Busy{% endif %}
+                </span>
+                
+                <div class="doctor-header">
+                    <h3 class="doctor-name">{{ doctor.name }}</h3>
+                    <p class="specialization">{{ doctor.specialization }}</p>
+                </div>
+                
+                <div class="doctor-info">
+                    <div class="info-row">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                        </svg>
+                        {{ doctor.hospital }}
+                    </div>
+                    
+                    <div class="info-row">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                        </svg>
+                        {{ doctor.location }}
+                    </div>
+                    
+                    <div class="info-row">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        {{ doctor.experience }} years experience
+                    </div>
+                    
+                    <div class="info-row">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        ₹{{ doctor.fee }} consultation fee
+                    </div>
+                </div>
+                
+                <button class="btn-consult" 
+                        onclick="openModal('{{ doctor._id }}', '{{ doctor.name }}')"
+                        {% if not doctor.is_available_now %}disabled{% endif %}>
+                    {% if doctor.is_available_now %}
+                        Request Consultation
+                    {% else %}
+                        Currently Unavailable
+                    {% endif %}
+                </button>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    
+    <div class="modal" id="consultModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Request Consultation</h3>
+                <p id="doctorNameLabel"></p>
+            </div>
+            
+            <form method="POST" id="consultForm">
+                <div class="form-group">
+                    <label>Describe your health concern *</label>
+                    <textarea name="message" placeholder="Please describe your symptoms, concerns, or reason for consultation..." required></textarea>
+                </div>
+                
+                <div class="modal-actions">
+                    <button type="submit" class="btn-submit">Send Request</button>
+                    <button type="button" class="btn-cancel" onclick="closeModal()">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    function openModal(doctorId, doctorName) {
+        document.getElementById('consultModal').classList.add('active');
+        document.getElementById('doctorNameLabel').textContent = 'To: Dr. ' + doctorName;
+        document.getElementById('consultForm').action = '/request-consultation/' + doctorId;
+    }
+    
+    function closeModal() {
+        document.getElementById('consultModal').classList.remove('active');
+        document.getElementById('consultForm').reset();
+    }
+    
+    // Close modal when clicking outside
+    window.onclick = function(event) {
+        const modal = document.getElementById('consultModal');
+        if (event.target === modal) {
+            closeModal();
+        }
+    }
+</script>
+{% endblock %}

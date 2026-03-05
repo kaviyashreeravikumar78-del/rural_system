@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patient Reports | RuralCare AI</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background: #f5f7fa; color: #333; }
+        
+        /* Navbar */
+        .navbar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white; padding: 20px 40px; display: flex;
+            justify-content: space-between; align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .navbar a { color: white; text-decoration: none; padding: 10px 20px; background: rgba(255,255,255,0.2); border-radius: 8px; font-weight: 500; }
+
+        .container { max-width: 1100px; margin: 40px auto; padding: 0 20px; }
+        
+        /* Patient Header */
+        .patient-header { background: white; padding: 30px; border-radius: 16px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); margin-bottom: 30px; }
+        .patient-info { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-top: 15px; }
+        .info-item strong { color: #64748b; font-size: 0.85rem; text-transform: uppercase; display: block; margin-bottom: 4px; }
+
+        /* Stats Grid */
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px; }
+        .stat-card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); text-align: center; border-bottom: 3px solid #667eea; }
+        .stat-card .icon { font-size: 24px; margin-bottom: 8px; }
+        .stat-card h4 { font-size: 20px; color: #1e293b; }
+
+        /* Report Cards */
+        .section { background: white; padding: 30px; border-radius: 16px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); margin-bottom: 30px; }
+        .section h3 { margin-bottom: 20px; display: flex; align-items: center; gap: 10px; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px; }
+
+        .report-card { background: #f8fafc; padding: 20px; border-radius: 12px; margin-bottom: 15px; border: 1px solid #e2e8f0; }
+        .report-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        
+        .report-details { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+        
+        .tag { display: inline-block; padding: 4px 10px; background: #dcfce7; color: #166534; border-radius: 15px; font-size: 12px; font-weight: 600; margin: 2px; }
+        .tag.exercise { background: #dbeafe; color: #1e40af; }
+
+        /* Pain Bar - Fixed Red Lines */
+        .pain-container { display: flex; align-items: center; gap: 10px; width: 100%; max-width: 200px; }
+        .pain-bar-bg { flex: 1; height: 8px; background: #e2e8f0; border-radius: 4px; overflow: hidden; }
+        .pain-fill { height: 100%; background: linear-gradient(90deg, #22c55e, #eab308, #ef4444); width: 0%; transition: width 0.5s ease; }
+
+        .mood-indicator { padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 700; }
+        .mood-excellent { background: #dcfce7; color: #166534; }
+        .mood-poor { background: #fee2e2; color: #991b1b; }
+    </style>
+</head>
+<body>
+
+    <div class="navbar">
+        <h1><i class="fa-solid fa-chart-line"></i> Patient Health Reports</h1>
+        <a href="/doctor-dashboard">Back to Dashboard</a>
+    </div>
+    
+    <div class="container">
+        <div class="patient-header">
+            <h2>{{ user.name }}</h2>
+            <div class="patient-info">
+                <div class="info-item"><strong>Age</strong><span>{{ user.age }} years</span></div>
+                <div class="info-item"><strong>Email</strong><span>{{ user.email }}</span></div>
+                <div class="info-item"><strong>Chronic Conditions</strong><span>{{ user.chronic_conditions|join(', ') if user.chronic_conditions else 'None' }}</span></div>
+            </div>
+        </div>
+
+        {% if daily_reports %}
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="icon">📝</div>
+                <h4>{{ daily_reports|length }}</h4>
+                <p>Total Reports</p>
+            </div>
+            <div class="stat-card">
+                <div class="icon">💧</div>
+                <h4>Avg {{ (daily_reports|sum(attribute='water_intake') / daily_reports|length)|round(1) }}</h4>
+                <p>Daily Water (Glasses)</p>
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="section">
+            <h3><i class="fa-solid fa-calendar-day" style="color:#667eea"></i> Daily Logs</h3>
+            {% for report in daily_reports %}
+            <div class="report-card">
+                <div class="report-header">
+                    <span style="font-weight:700; color:#475569;">{{ report.date.strftime('%d %b %Y') }}</span>
+                    <span class="mood-indicator mood-{{ report.mood|lower }}">{{ report.mood }}</span>
+                </div>
+                
+                <div class="report-details">
+                    <div>
+                        <strong>Medications Taken</strong>
+                        <div style="margin-top:5px;">
+                            {% for med in report.medications_taken %}
+                            <span class="tag">{{ med }}</span>
+                            {% else %}
+                            <span style="color:#94a3b8; font-size:14px;">None</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <div>
+                        <strong>Pain Level</strong>
+                        <div class="pain-container">
+                            <div class="pain-bar-bg">
+                                <div class="pain-fill js-pain-bar" data-level="{{ report.pain_level }}"></div>
+                            </div>
+                            <span style="font-size:13px; font-weight:600;">{{ report.pain_level }}/10</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Find all pain bars and set their width safely
+            const painBars = document.querySelectorAll('.js-pain-bar');
+            painBars.forEach(bar => {
+                const level = bar.getAttribute('data-level');
+                const percentage = (parseInt(level) / 10) * 100;
+                bar.style.width = percentage + '%';
+            });
+        });
+    </script>
+</body>
+</html>

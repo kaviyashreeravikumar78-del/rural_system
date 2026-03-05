@@ -1,0 +1,200 @@
+{% extends "base.html" %}
+
+{% block title %}RuralCare AI | My Consultations{% endblock %}
+
+{% block styles %}
+<style>
+    .consultations-wrapper {
+        background: #f0f2f5;
+        min-height: 100vh;
+        padding: 40px 20px;
+    }
+
+    .container-tight {
+        max-width: 850px;
+        margin: auto;
+    }
+
+    .header-card {
+        background: white;
+        padding: 25px;
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        margin-bottom: 25px;
+        text-align: center;
+    }
+
+    .consult-card {
+        background: white;
+        border-radius: 15px;
+        padding: 25px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+        border: 1px solid #eef0f2;
+    }
+
+    .card-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+    }
+
+    .dr-name {
+        font-size: 1.2rem;
+        color: #2d3748;
+        font-weight: 700;
+        margin: 0;
+    }
+
+    .date-text {
+        font-size: 0.85rem;
+        color: #a0aec0;
+        display: block;
+    }
+
+    /* Status Badges */
+    .badge {
+        padding: 5px 12px;
+        border-radius: 6px;
+        font-size: 11px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    .badge-pending { background: #fffaf0; color: #975a16; border: 1px solid #fbd38d; }
+    .badge-accepted { background: #f0fff4; color: #22543d; border: 1px solid #9ae6b4; }
+    .badge-rejected { background: #fff5f5; color: #822727; border: 1px solid #feb2b2; }
+
+    .msg-bubble {
+        background: #f7fafc;
+        padding: 15px;
+        border-radius: 10px;
+        margin: 15px 0;
+        border-left: 4px solid #cbd5e0;
+    }
+
+    .msg-label {
+        font-size: 12px;
+        font-weight: 700;
+        color: #718096;
+        margin-bottom: 5px;
+        display: block;
+    }
+
+    .action-row {
+        display: flex;
+        gap: 12px;
+        margin-top: 20px;
+    }
+
+    .btn-action {
+        flex: 1;
+        padding: 12px;
+        border-radius: 8px;
+        text-align: center;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 14px;
+        transition: all 0.2s;
+    }
+
+    .btn-chat {
+        background: #667eea;
+        color: white;
+    }
+
+    .btn-chat:hover { background: #5a67d8; }
+
+    .btn-rx {
+        background: #38a169;
+        color: white;
+    }
+
+    .btn-rx:hover { background: #2f855a; }
+
+    .waiting-msg {
+        color: #718096;
+        font-size: 14px;
+        font-style: italic;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .empty-consult {
+        background: white;
+        padding: 50px;
+        border-radius: 15px;
+        text-align: center;
+        color: #718096;
+    }
+    .btn-video:hover { background: #6b46c1; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="consultations-wrapper">
+    <div class="container-tight">
+        
+        <div class="header-card">
+            <h2 style="color: #4a5568;">💬 Consultation History</h2>
+            <p style="color: #718096; margin: 0;">Communicate with specialists and access your digital prescriptions</p>
+        </div>
+
+        {% if consultations %}
+            {% for consult in consultations %}
+            <div class="consult-card">
+                <div class="card-top">
+                    <div>
+                        <h3 class="dr-name">Dr. {{ consult.doctor_name }}</h3>
+                        <span class="date-text">
+                            Requested: {{ consult.requested_at.strftime('%d %b %Y, %I:%M %p') }}
+                        </span>
+                    </div>
+                    <span class="badge badge-{{ consult.status.lower() }}">
+                        {{ consult.status }}
+                    </span>
+                </div>
+
+                <div class="msg-bubble">
+                    <span class="msg-label">YOUR INITIAL MESSAGE:</span>
+                    <p style="margin: 0; color: #4a5568; line-height: 1.5;">{{ consult.message }}</p>
+                </div>
+
+                {% if consult.status == "Accepted" %}
+                    <div class="action-row">
+                        <a href="/chat/{{ consult._id }}" class="btn-action btn-chat">
+                            💬 Open Secure Chat
+                        </a>
+                        <a href="/video-consultation/{{ consult._id }}" class="btn-action btn-video" style="background: #805ad5; color: white;">
+                            📹 Video Call
+                        </a>
+                        {% if consult.prescription %}
+                        <a href="/view-prescription/{{ consult._id }}" class="btn-action btn-rx">
+                            📋 View Prescription
+                        </a>
+                        {% endif %}
+                    </div>
+                {% elif consult.status == "Pending" %}
+                    <div class="waiting-msg">
+                        <span>⏳</span> Your request is being reviewed by the doctor.
+                    </div>
+                {% else %}
+                    <div style="color: #e53e3e; font-size: 14px; font-weight: 600;">
+                        ✕ This request was declined.
+                    </div>
+                {% endif %}
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="empty-consult">
+                <div style="font-size: 40px; margin-bottom: 15px;">📡</div>
+                <p>No consultation history found.</p>
+                <a href="/doctors" class="btn-main-action" style="display:inline-block; margin-top:15px; text-decoration:none;">Find a Doctor</a>
+            </div>
+        {% endif %}
+
+    </div>
+</div>
+{% endblock %}
